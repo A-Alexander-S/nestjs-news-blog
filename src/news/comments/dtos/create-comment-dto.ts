@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString, Validate } from 'class-validator';
 
-export class CreateCommentsDto {
+export class CreateCommentDto {
 
   @IsNotEmpty()
   @IsString()
@@ -9,4 +9,6 @@ export class CreateCommentsDto {
   @IsNotEmpty()
   @IsString()
   author: string;
+
+  avatar: string;
 }
