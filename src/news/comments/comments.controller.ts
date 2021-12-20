@@ -1,6 +1,7 @@
 import { Controller, Param, Post, Body, Get, Delete, Put } from '@nestjs/common';
 import { CommentsService, CommentEdit, Comment } from './comments.service';
 import { CreateCommentsDto } from './dtos/create-comment-dto';
+import { EditCommentDto } from './dtos/edit-comment-dto';
 
 @Controller('comments')
 export class CommentsController {
@@ -16,7 +17,7 @@ export class CommentsController {
   edit(
     @Param('idNews') idNews: string,
     @Param('idComment') idComment: string,
-    @Body() comment: CommentEdit
+    @Body() comment: EditCommentDto
   ) {
     const idNewsInt = parseInt(idNews);
     const idCommentInt = parseInt(idComment);
