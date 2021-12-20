@@ -23,24 +23,24 @@ export class CommentsService {
       this.comments[idNews] = [];
     }
 
-    this.comments[idNews].push({ ...comment, id: getRandomInt() });
-    return 'Комментарий был создан';
+    const newComment = { ...comment, id: getRandomInt() }
+    this.comments[idNews].push(newComment);
+    return newComment;
   }
 
   edit(idNews: number, idComment: number, comment: CommentEdit) {
-    const indexComment =
-      this.comments[idNews]?.findIndex((c) => c.id === idComment) === -1;
-    if (
-      !this.comments[idNews] || indexComment
-    ) {
+    const indexComment = this.comments[idNews]?.findIndex(
+      (c) => c.id === idComment
+    );
+    if (!this.comments[idNews] || indexComment === -1) {
       return false;
     }
 
     this.comments[idNews][indexComment] = {
       ...this.comments[idNews][indexComment],
-      comment
+      ...comment
     };
-    return 'Комментарий был создан';
+    return this.comments[idNews][indexComment];
   }
 
   find(idNews: number): Comment[] | null {
