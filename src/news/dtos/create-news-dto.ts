@@ -17,6 +17,5 @@ export class CreateNewsDto {
   @Validate((o) => o.countView || o.countView === '')
   countView: number;
 
-  @Validate((o) => o !== undefined)
   cover: string;
 }

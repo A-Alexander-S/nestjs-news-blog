@@ -1,14 +1,34 @@
-import { Controller, Param, Post, Body, Get, Delete, Put } from '@nestjs/common';
-import { CommentsService, CommentEdit, Comment } from './comments.service';
-import { CreateCommentsDto } from './dtos/create-comment-dto';
+import { diskStorage } from 'multer';
+import { Controller, Param, Post, Body, Get, Delete, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { HelperFileLoader } from '../../utils/HelperFileLoader';
+import { CommentsService } from './comments.service';
+import { CreateCommentDto } from './dtos/create-comment-dto';
 import { EditCommentDto } from './dtos/edit-comment-dto';
+
+const PATH_NEWS = '/news-static/comments/';
+HelperFileLoader.path = PATH_NEWS;
 
 @Controller('comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) { }
 
   @Post('/api/:idNews')
-  create(@Param('idNews') idNews: string, @Body() comment: CreateCommentsDto) {
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: diskStorage({
+        destination: HelperFileLoader.destinationPath,
+        filename: HelperFileLoader.customFileName,
+      })
+    })
+  )
+  create(@Param('idNews') idNews: string,
+    @Body() comment: CreateCommentDto,
+    @UploadedFile() avatar: Express.Multer.File,
+  ) {
+    if (avatar?.filename) {
+      comment.avatar = PATH_NEWS + avatar.filename;
+    }
     const idNewsInt = parseInt(idNews);
     return this.commentsService.create(idNewsInt, comment);
   }
