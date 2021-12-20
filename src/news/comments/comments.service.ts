@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { getRandomInt } from '../news.service';
+import { CreateCommentsDto } from './dtos/create-comment-dto';
 
 export type Comment = {
   id?: number;
