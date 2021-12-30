@@ -6,7 +6,7 @@ import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dtos/create-comment-dto';
 import { EditCommentDto } from './dtos/edit-comment-dto';
 
-const PATH_NEWS = '/news-static/comments/';
+const PATH_NEWS = '/news-static/';
 HelperFileLoader.path = PATH_NEWS;
 
 @Controller('comments')
