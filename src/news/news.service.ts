@@ -34,13 +34,12 @@ export class NewsService {
       description: 'Ура! Наша первая новость',
       author: 'Александр',
       countView: 12,
-      cover: 'https://cdn.pixabay.com/photo/2018/07/13/10/20/kittens-3535404_960_720.jpg',
+      cover: '/09c5ef49-9ce3-4c6b-bf7b-2396d9416efd.jpeg',
     }
   ];
 
   create(news: News): News {
     const id = getRandomInt(0, 99999);
-    // console.log(id);
     const finalNews = {
       ...news,
       id: id
