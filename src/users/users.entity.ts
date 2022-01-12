@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 import { NewsEntity } from '../news/news.entity';
+import { CommentsEntity } from '../news/comments/comments.entity';
 
 @Entity('users')
 export class UsersEntity {
@@ -19,6 +20,9 @@ export class UsersEntity {
 
   @OneToMany(() => NewsEntity, (news) => news.user)
   news: NewsEntity[];
+
+  @OneToMany(() => CommentsEntity, (comments) => comments.user)
+  comments: CommentsEntity[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
