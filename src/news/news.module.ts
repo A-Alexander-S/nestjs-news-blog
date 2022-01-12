@@ -10,6 +10,12 @@ import { UsersModule } from '../users/users.module';
 @Module({
   controllers: [NewsController],
   providers: [NewsService],
-  imports: [TypeOrmModule.forFeature([NewsEntity]), CommentsModule, MailModule, UsersModule],
+  imports: [
+    TypeOrmModule.forFeature([NewsEntity]),
+    CommentsModule,
+    MailModule,
+    UsersModule
+  ],
+  exports: [TypeOrmModule.forFeature([NewsEntity]), NewsService]
 })
 export class NewsModule { }

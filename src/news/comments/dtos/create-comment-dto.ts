@@ -7,8 +7,6 @@ export class CreateCommentDto {
   message: string;
 
   @IsNotEmpty()
-  @IsString()
-  author: string;
-
-  avatar: string;
+  @IsNumber()
+  userId: number;
 }
