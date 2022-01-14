@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, Validate } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateNewsDto {
 
@@ -11,6 +11,7 @@ export class CreateNewsDto {
   description: string;
 
   @IsNotEmpty()
+  @IsString()
   userId: string;
 
   cover: string;

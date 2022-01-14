@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, Delete, Put, ParseIntPipe, Res, UseInterceptors, UploadedFile, HttpException, HttpStatus, Render } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Delete, Put, ParseIntPipe, Res, UseInterceptors, UploadedFile, HttpException, HttpStatus, Render, UseGuards } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CommentsService } from './comments/comments.service';
 import { CreateNewsDto } from './dtos/create-news-dto';
@@ -7,6 +7,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { HelperFileLoader } from '../utils/HelperFileLoader';
 import { NewsEntity } from './news.entity';
+import { LocalAuthGuard } from 'src/auth/local-auth.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Roles } from 'src/auth/role/roles.decorator';
+import { Role } from 'src/auth/role/role.enum';
 
 const PATH_NEWS = '/news-static/';
 HelperFileLoader.path = PATH_NEWS;
@@ -70,6 +74,8 @@ export class NewsController {
     return news;
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.Moderator)
   @Post('/api')
   @UseInterceptors(
     FileInterceptor('cover', {
@@ -84,7 +90,7 @@ export class NewsController {
     @UploadedFile() cover: Express.Multer.File,
   ): Promise<NewsEntity> {
     const fileExtension = cover.originalname.split('.').reverse()[0];
-    if (!fileExtension || !fileExtension.match(/(jpg|jpeg|png|gif)$/)) {
+    if (!fileExtension || !fileExtension.match(/(jpg|jpeg|png|gif)$/i)) {
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
