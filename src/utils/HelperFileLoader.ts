@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid';
 
 const publicPath = './public';
 let path: string = publicPath;
@@ -6,7 +6,7 @@ let path: string = publicPath;
 export class HelperFileLoader {
   path: string;
   static set path(_path: string) {
-    path = publicPath + _path; // ./public/news-static/
+    path = publicPath + _path;
   }
 
   public static customFileName(req, file, cb) {
@@ -16,6 +16,18 @@ export class HelperFileLoader {
   }
 
   public static destinationPath(req, file, cb) {
-    cb(null, path)
+    cb(null, path);
+  }
+
+  public static fileFilterImages(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      return cb(
+        new Error(
+          'Неверный формат изображения! Мы поддерживаем только: jpg|jpeg|png|gif',
+        ),
+        false,
+      );
+    }
+    cb(null, true);
   }
 }

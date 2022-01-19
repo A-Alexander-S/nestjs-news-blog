@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UsersEntity } from 'src/users/users.entity';
 import { Repository } from 'typeorm';
 import { Comment } from './comments/comments.service';
-import { CreateNewsDto } from './dtos/create-news-dto';
 import { NewsEntity } from './news.entity';
+import { CreateNewsDto } from './dtos/create-news-dto';
 import { UsersService } from '../users/users.service';
 
 export interface News {
@@ -14,7 +13,7 @@ export interface News {
   author: string;
   countView?: number;
   cover?: string;
-  comments?: Comment[]
+  comments?: Comment[];
 }
 
 export interface NewsEdit {
@@ -33,12 +32,12 @@ export class NewsService {
     private usersService: UsersService,
   ) { }
 
-  async create(news: CreateNewsDto): Promise<NewsEntity> {
+  async create(news: CreateNewsDto, userId: number): Promise<NewsEntity> {
     const newsEntity = new NewsEntity();
     newsEntity.title = news.title;
     newsEntity.description = news.description;
     newsEntity.cover = news.cover;
-    const _user = await this.usersService.findById(parseInt(news.userId));
+    const _user = await this.usersService.findById(userId);
     newsEntity.user = _user;
     return this.newsRepository.save(newsEntity);
   }
@@ -46,7 +45,7 @@ export class NewsService {
   findById(id: News['id']): Promise<NewsEntity> {
     return this.newsRepository.findOne(
       { id },
-      { relations: ['user', 'comments', 'comments.user'] }
+      { relations: ['user', 'comments', 'comments.user'] },
     );
   }
 
@@ -55,7 +54,7 @@ export class NewsService {
   }
 
   async edit(id: number, news: NewsEdit): Promise<NewsEntity | null> {
-    let editableNews = await this.findById(id);
+    const editableNews = await this.findById(id);
     if (editableNews) {
       const newsEntity = new NewsEntity();
       newsEntity.title = news.title || editableNews.title;
@@ -67,7 +66,7 @@ export class NewsService {
     return null;
   }
 
-  async remove(id: News['id']): Promise<NewsEntity | null> {
+  async remove(id): Promise<NewsEntity | null> {
     const removeNews = await this.findById(id);
     if (removeNews) {
       return this.newsRepository.remove(removeNews);

@@ -1,25 +1,24 @@
-import { IsNotEmpty, IsString, Validate } from "class-validator";
-import { Role } from "src/auth/role/role.enum";
-
+import { IsNotEmpty, IsString, ValidateIf } from 'class-validator';
+import { Role } from '../../auth/role/role.enum';
 
 export class EditUserDto {
   @IsNotEmpty()
   @IsString()
-  @Validate((o) => o.firstName)
+  @ValidateIf((o) => o.firstName)
   firstName: string;
 
   @IsNotEmpty()
   @IsString()
-  @Validate((o) => o.email)
+  @ValidateIf((o) => o.email)
   email: string;
 
   @IsNotEmpty()
   @IsString()
-  @Validate((o) => o.password)
+  @ValidateIf((o) => o.password)
   password: string;
 
   @IsNotEmpty()
   @IsString()
-  @Validate((o) => o.roles)
+  @ValidateIf((o) => o.roles)
   roles: Role;
 }

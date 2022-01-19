@@ -1,12 +1,14 @@
-import { Controller, Get, Render } from '@nestjs/common';
+import { Controller, Get, Render, Req, Request } from '@nestjs/common';
 import { AppService } from './app.service';
+import { JwtCookie } from './auth/jwt.decorator';
 
 @Controller('/app')
 export class AppController {
   constructor(private readonly appService: AppService) { }
 
   @Get('/hello')
-  getHello(): string {
+  getHello(@JwtCookie() jwt): string {
+    console.log(jwt);
     return this.appService.getHello();
   }
 
@@ -14,10 +16,7 @@ export class AppController {
   @Render('index')
   root() {
     return {
-      messages: [
-        { message: 'Hello', author: 'Alexander' },
-        { message: 'World', },
-      ],
+      messages: [{ message: 'Hello', author: 'Vlad' }, { message: 'World' }],
     };
   }
 }

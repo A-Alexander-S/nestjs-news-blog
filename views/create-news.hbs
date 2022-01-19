@@ -16,7 +16,6 @@
     <label for="cover">Обложка новости</label>
     <input type="file" class="form-control-file" id="cover" name="cover">
   </div>
-  {{!-- <input type="submit" value="Создать новость"> --}}
   <button type="button" class="btn btn-primary" onclick='sendForm()'>Создать</button>
 </form>
 
@@ -27,7 +26,6 @@
     local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
     return local.toJSON().slice(0, 10);
   });
-  //document.getElementById('dateInput').value = new Date().toDateInputValue();
   function sendForm() {
     var data = new FormData($('form')[0]);
     $.ajax({

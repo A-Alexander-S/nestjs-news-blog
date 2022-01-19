@@ -1,9 +1,24 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Render, Req, UseGuards } from '@nestjs/common';
-import { AuthService } from 'src/auth/auth.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import {
+  Body,
+  Controller,
+  Post,
+  Patch,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+  Req,
+  HttpException,
+  HttpStatus,
+  Get,
+  Render,
+  UseInterceptors,
+} from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user-dto';
-import { EditUserDto } from './dtos/edit-user-dto';
 import { UsersService } from './users.service';
+import { EditUserDto } from './dtos/edit-user-dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AuthService } from '../auth/auth.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 export class UsersController {
@@ -21,6 +36,15 @@ export class UsersController {
   @Render('user/edit-profile')
   async renderEditProfile(@Param('id', ParseIntPipe) id: number, @Req() req) {
     const _user = await this.usersService.findById(id);
+    if (!_user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'Неверный идентификатор пользователя',
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
     return _user;
   }
 
