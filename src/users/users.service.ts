@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UsersEntity } from './users.entity';
 import { Repository } from 'typeorm';
+import { UsersEntity } from './users.entity';
 import { CreateUserDto } from './dtos/create-user-dto';
 import { hash } from '../utils/crypto';
 import { EditUserDto } from './dtos/edit-user-dto';
-import { checkPermission, Modules } from 'src/auth/role/utils/check-permission';
+import { checkPermission, Modules } from '../auth/role/utils/check-permission';
+import { Role } from '../auth/role/role.enum';
 
 @Injectable()
 export class UsersService {
@@ -18,7 +19,7 @@ export class UsersService {
     const userEntity = new UsersEntity();
     userEntity.firstName = user.firstName;
     userEntity.email = user.email;
-    userEntity.roles = user.roles;
+    userEntity.roles = Role.User;
     userEntity.password = await hash(user.password);
 
     return this.usersRepository.save(userEntity);
@@ -38,6 +39,7 @@ export class UsersService {
 
     _user.firstName = user.firstName || _user.firstName;
     _user.email = user.email || _user.email;
+
     if (checkPermission(Modules.changeRole, _user.roles)) {
       _user.roles = user.roles || _user.roles;
     }
@@ -46,7 +48,7 @@ export class UsersService {
     return this.usersRepository.save(_user);
   }
 
-  async findById(id: number) {
+  async findById(id: number): Promise<UsersEntity> {
     return this.usersRepository.findOne(id);
   }
 

@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  NestMiddleware,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from './role.enum';
 import { ROLES_KEY } from './roles.decorator';
@@ -27,10 +22,15 @@ export class RolesGuard implements CanActivate {
     if (!requiredRoles) {
       return true;
     }
-    const { headers } = context.switchToHttp().getRequest();
-    const { authorization } = headers;
-    const user = await this.authService.verify(authorization.split(' ')[1]);
+    const { cookies } = context.switchToHttp().getRequest();
+    const { jwt } = cookies;
+    const user = await this.authService.verify(jwt);
+    // const { headers } = context.switchToHttp().getRequest();
+    // const { authorization } = headers;
+    // const user = await this.authService.verify(authorization.split(' ')[1]);
+    // const user = await this.authService.verify(authorization);
     const _user = await this.usersService.findById(user.id);
+    console.log(_user, requiredRoles);
 
     return requiredRoles.some((role) => _user?.roles === role);
   }

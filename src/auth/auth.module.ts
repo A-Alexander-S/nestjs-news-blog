@@ -1,7 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthGuard, PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
@@ -14,10 +14,10 @@ import { RolesGuard } from './role/roles.guard';
   imports: [
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '9999h' },
     }),
     forwardRef(() => UsersModule),
-    PassportModule
+    PassportModule,
   ],
   providers: [
     {

@@ -1,7 +1,6 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateNewsDto {
-
   @IsNotEmpty()
   @IsString()
   title: string;
@@ -9,10 +8,6 @@ export class CreateNewsDto {
   @IsNotEmpty()
   @IsString()
   description: string;
-
-  @IsNotEmpty()
-  @IsString()
-  userId: string;
 
   cover: string;
 }

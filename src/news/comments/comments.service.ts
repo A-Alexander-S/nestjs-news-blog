@@ -1,10 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UsersService } from 'src/users/users.service';
+import { CommentsEntity } from './comments.entity';
 import { Repository } from 'typeorm';
 import { NewsService } from '../news.service';
-import { CommentsEntity } from './comments.entity';
-import { CreateCommentDto } from './dtos/create-comment-dto';
+import { UsersService } from '../../users/users.service';
+import { EventsComment } from './EventsComment.enum';
+import {
+  checkPermission,
+  Modules,
+} from '../../auth/role/utils/check-permission';
 
 export type Comment = {
   id?: number;
@@ -16,7 +21,7 @@ export type CommentEdit = {
   id?: number;
   message?: string;
   author?: string;
-}
+};
 
 @Injectable()
 export class CommentsService {
@@ -25,12 +30,13 @@ export class CommentsService {
     private readonly commentsRepository: Repository<CommentsEntity>,
     private readonly newsService: NewsService,
     private readonly userService: UsersService,
+    private readonly eventEmitter: EventEmitter2,
   ) { }
-  private readonly comments = {};
 
   async create(
     idNews: number,
-    comment: CreateCommentDto
+    message: string,
+    idUser: number,
   ): Promise<CommentsEntity> {
     const _news = await this.newsService.findById(idNews);
     if (!_news) {
@@ -42,7 +48,7 @@ export class CommentsService {
         HttpStatus.NOT_FOUND,
       );
     }
-    const _user = await this.userService.findById(comment.userId);
+    const _user = await this.userService.findById(idUser);
     if (!_user) {
       throw new HttpException(
         {
@@ -56,15 +62,24 @@ export class CommentsService {
     const commentEntity = new CommentsEntity();
     commentEntity.news = _news;
     commentEntity.user = _user;
-    commentEntity.message = comment.message;
+    commentEntity.message = message;
 
     return this.commentsRepository.save(commentEntity);
   }
 
   async edit(idComment: number, comment: CommentEdit): Promise<CommentsEntity> {
-    const _comment = await this.commentsRepository.findOne(idComment);
+    const _comment = await this.commentsRepository.findOne({
+      where: { id: idComment },
+      relations: ['news', 'user'],
+    });
     _comment.message = comment.message;
-    return this.commentsRepository.save(_comment);
+    const _updatedComment = await this.commentsRepository.save(_comment);
+    this.eventEmitter.emit(EventsComment.edit, {
+      commentId: idComment,
+      newsId: _comment.news.id,
+      comment: _updatedComment,
+    });
+    return _updatedComment;
   }
 
   async findAll(idNews: number): Promise<CommentsEntity[]> {
@@ -74,8 +89,11 @@ export class CommentsService {
     });
   }
 
-  async remove(idComment: number): Promise<CommentsEntity> {
-    const _comment = await this.commentsRepository.findOne(idComment);
+  async remove(idComment: number, userId: number): Promise<CommentsEntity> {
+    const _comment = await this.commentsRepository.findOne({
+      where: { id: idComment },
+      relations: ['news', 'user'],
+    });
     if (!_comment) {
       throw new HttpException(
         {
@@ -86,11 +104,33 @@ export class CommentsService {
       );
     }
 
-    return this.commentsRepository.remove(_comment);
-  };
+    const _user = await this.userService.findById(userId);
+    console.log(_user);
+    console.log(_comment.user);
+    if (
+      _user.id !== _comment.user.id &&
+      !checkPermission(Modules.editComment, _user.roles)
+    ) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'Недостаточно прав для удаления',
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const comment = await this.commentsRepository.remove(_comment);
+    this.eventEmitter.emit(EventsComment.remove, {
+      commentId: idComment,
+      newsId: _comment.news.id,
+    });
+
+    return comment;
+  }
 
   async removeAll(idNews) {
     const _comments = await this.findAll(idNews);
-    return await this.commentsRepository.remove(_comments)
+    return await this.commentsRepository.remove(_comments);
   }
 }
