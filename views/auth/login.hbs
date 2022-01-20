@@ -27,6 +27,8 @@
       data: { username: $('#username')[0].value, password: $('#password')[0].value },
       url: '/auth/login',
     }).then((data) => {
+      //window.location.href = 'http://localhost:3000/news/all';
+      window.location.replace('http://localhost:3000/news/all');
     })
   }
 </script>
