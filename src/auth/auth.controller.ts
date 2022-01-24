@@ -10,11 +10,17 @@ import {
 import { Response } from 'express';
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
+  @ApiOperation({ summary: 'Страница авторизации пользователя' })
+  @ApiResponse({
+    status: 200,
+    description: 'Пользователь авторизирован',
+  })
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req, @Res({ passthrough: true }) response: Response) {
@@ -25,6 +31,11 @@ export class AuthController {
     return access_token;
   }
 
+  @ApiOperation({ summary: 'Страница авторизации пользователя' })
+  @ApiResponse({
+    status: 200,
+    description: 'Пользователь авторизирован',
+  })
   @Get('login')
   @Render('auth/login')
   async renderLogin() {
