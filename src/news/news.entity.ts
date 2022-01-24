@@ -42,15 +42,70 @@ export class NewsEntity {
   @Column('text', { nullable: true })
   cover: string;
 
+  @ApiProperty({
+    example: {
+      "id": 1,
+      "firstName": "Alexander A.",
+      "email": "lol@mail.ru",
+      "password": "$2b$10$uW8MWJ2Bschre8zuGErlb.IDQSXSbK0.ZeHx6yB.8jyO8Cxo/BViG",
+      "roles": "user",
+      "createdAt": "2022-01-19T13:00:06.777Z",
+      "updateAt": "2022-01-19T13:00:06.777Z"
+    },
+    description: 'Информация о пользователе',
+  })
   @ManyToOne(() => UsersEntity, (user) => user.news)
   user: UsersEntity;
 
+  @ApiProperty({
+    example: [
+      {
+        "id": 17,
+        "message": "12345",
+        "createAt": "2022-01-24T09:05:24.615Z",
+        "updateAt": "2022-01-24T09:05:24.615Z",
+        "user": {
+          "id": 1,
+          "firstName": "Alexander A.",
+          "email": "lol@mail.ru",
+          "password": "$2b$10$uW8MWJ2Bschre8zuGErlb.IDQSXSbK0.ZeHx6yB.8jyO8Cxo/BViG",
+          "roles": "user",
+          "createdAt": "2022-01-19T13:00:06.777Z",
+          "updateAt": "2022-01-19T13:00:06.777Z"
+        }
+      },
+      {
+        "id": 19,
+        "message": "Test comment\n",
+        "createAt": "2022-01-24T11:42:12.824Z",
+        "updateAt": "2022-01-24T11:42:12.824Z",
+        "user": {
+          "id": 1,
+          "firstName": "Alexander A.",
+          "email": "lol@mail.ru",
+          "password": "$2b$10$uW8MWJ2Bschre8zuGErlb.IDQSXSbK0.ZeHx6yB.8jyO8Cxo/BViG",
+          "roles": "user",
+          "createdAt": "2022-01-19T13:00:06.777Z",
+          "updateAt": "2022-01-19T13:00:06.777Z"
+        }
+      }
+    ],
+    description: 'Массив комментариев',
+  })
   @OneToMany(() => CommentsEntity, (comments) => comments.news)
   comments: CommentsEntity[];
 
+  @ApiProperty({
+    example: '2022-01-20T06:06:46.978Z',
+    description: 'Дата создания новости',
+  })
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
+  @ApiProperty({
+    example: '2022-01-20T06:06:46.978Z',
+    description: 'Дата редактирования новости',
+  })
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 }

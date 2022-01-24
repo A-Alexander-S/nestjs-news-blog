@@ -27,7 +27,8 @@ import { NewsEntity } from './news.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/role/roles.decorator';
 import { Role } from '../auth/role/role.enum';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { KeyObject } from 'crypto';
 
 const PATH_NEWS = '/news-static/';
 HelperFileLoader.path = PATH_NEWS;
@@ -41,27 +42,13 @@ export class NewsController {
     private readonly mailService: MailService,
   ) { }
 
-  @Get('/api/detail/:id')
-  async get(@Param('id', ParseIntPipe) id: number): Promise<NewsEntity> {
-    const news = this.newsService.findById(id);
-    if (!news) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'Новость была не найдена',
-        },
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    return news;
-  }
-
-  @Get('/api/all')
-  async getAll(): Promise<NewsEntity[]> {
-    return this.newsService.getAll();
-  }
-
+  @ApiOperation({ summary: 'Получение массива новостей' })
+  @ApiResponse({
+    status: 200,
+    description: 'Массив новостей и title: { news: NewsEntity[], title: "Список новостей!" }',
+    // type: NewsEntity[],
+  })
+  // @ApiResponse({ status: 403, description: 'Forbidden.' })
   @Get('/all')
   @Render('news-list')
   async getAllView() {
@@ -70,12 +57,25 @@ export class NewsController {
     return { news, title: 'Список новостей!' };
   }
 
-  @Get('create/new')
-  @Render('create-news')
-  async createView() {
-    return {};
+  @ApiOperation({ summary: 'Application/json' })
+  @ApiResponse({
+    status: 200,
+    description: 'Массив новостей',
+    type: NewsEntity,
+  })
+  // @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @Get('/api/all')
+  async getAll(): Promise<NewsEntity[]> {
+    return this.newsService.getAll();
   }
 
+  @ApiOperation({ summary: 'Страница детальной информации о новости' })
+  @ApiResponse({
+    status: 200,
+    description: 'Информация о новости, пользователе, который её создал и комментарии к этой новости с информацией о пользователе, который их оставил',
+    type: NewsEntity,
+  })
+  @ApiResponse({ status: 404, description: 'NOT_FOUND.' })
   @Get('/detail/:id')
   @Render('news-detail')
   async getDetailView(@Param('id', ParseIntPipe) id: number) {
@@ -93,7 +93,46 @@ export class NewsController {
     return { news };
   }
 
+  @ApiOperation({ summary: 'Application/json' })
+  @ApiResponse({
+    status: 200,
+    description: 'Информация о новости, пользователе, который её создал и комментарии к этой новости с информацией о пользователе, который их оставил',
+    type: NewsEntity,
+  })
+  @ApiResponse({ status: 404, description: 'NOT_FOUND.' })
+  @Get('/api/detail/:id')
+  async get(@Param('id', ParseIntPipe) id: number): Promise<NewsEntity> {
+    const news = this.newsService.findById(id);
+    if (!news) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'Новость была не найдена',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return news;
+  }
+
+  @ApiOperation({ summary: 'Страница создания новости' })
+  @ApiResponse({
+    status: 200,
+    description: 'Форма создания новости',
+    // type: HTMLDocument,
+  })
+  @ApiResponse({ status: 404, description: 'NOT_FOUND.' })
+  @Get('create/new')
+  @Render('create-news')
+  async createView() {
+    return {};
+  }
+
   @ApiOperation({ summary: 'Создание новости' })
+  @ApiBody({
+    type: CreateNewsDto,
+  })
   @ApiResponse({
     status: 200,
     description: 'Новость успешно создалась',
@@ -127,6 +166,17 @@ export class NewsController {
     return createdNews;
   }
 
+
+  // @ApiOperation({ summary: 'Создание новости' })
+  // @ApiBody({
+  //   type: CreateNewsDto,
+  // })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Новость успешно создалась',
+  //   type: NewsEntity,
+  // })
+  // @ApiResponse({ status: 403, description: 'Forbidden.' })
   @Put('/api/:id')
   async edit(
     @Param('id', ParseIntPipe) id: number,
@@ -146,6 +196,13 @@ export class NewsController {
     return newsEditable;
   }
 
+
+  @ApiOperation({ summary: 'Удаление новости' })
+  @ApiResponse({
+    status: 200,
+    description: 'Новость успешно удалена',
+  })
+  @ApiResponse({ status: 200, description: 'Передан неверный идентификатор' })
   @Delete('/api/:id')
   async remove(@Param('id', ParseIntPipe) id: number): Promise<string> {
     const isRemoved = await this.newsService.remove(id);
